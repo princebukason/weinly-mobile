@@ -3,6 +3,7 @@ import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
 import { supabase } from "@/lib/supabase";
+import { SITE_URL } from "@/lib/config";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -70,11 +71,11 @@ export async function savePushToken(userId: string, token: string) {
 
 export async function saveRequestPushToken(requestId: string, token: string) {
   try {
-    const { error } = await supabase
-      .from("fabric_requests")
-      .update({ push_token: token })
-      .eq("id", requestId);
-    if (error) console.error("Failed to save request push token:", error);
+    await fetch(`${SITE_URL}/api/push/save-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId, token }),
+    });
   } catch (e) {
     console.error("Request push token save error:", e);
   }
